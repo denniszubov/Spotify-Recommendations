@@ -10,15 +10,21 @@ def home_page():
     return render_template("index.html")
 
 
+@app.route('/dashboard/', methods=['GET'])
+def dashboard():
+    return render_template("dashboard.html")
+
+
 @app.route('/auth/')
 def index():
     response = startup.getUser()
     return redirect(response)
 
+
 @app.route('/callback/')
 def callback():
     startup.getUserToken(request.args['code'])
-    return redirect('/')
+    return redirect('/dashboard/')
 
 
 if __name__ == '__main__':
