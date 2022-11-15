@@ -2,6 +2,11 @@ from flask import Flask, request, url_for, render_template, redirect, request
 import startup
 
 
+# Client ID: 502e4c3cf6144515957f46ada1a95bee
+# Client Secret: ca2e4badc0034cd2925a10f10fb26c96
+# Redirect URI: http://localhost:5000/callback/
+
+
 app = Flask(__name__)
 
 
