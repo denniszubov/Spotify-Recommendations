@@ -49,7 +49,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    for key in session.keys():
+    for key in list(session.keys()):
         session.pop(key)
     return redirect('/')
 
