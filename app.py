@@ -22,9 +22,18 @@ def dashboard():
     authorize()
 
     sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
-    followed_artists = sp.current_user_saved_tracks(limit=3)["items"]
+    results = sp.current_user_saved_tracks()
+    tracks = []
+    for idx, item in enumerate(results['items']):
+        track_item = item['track']
+        track = {
+            "artist": track_item["artists"][0]["name"],
+            "track_name": track_item["name"]
+        }
+        tracks.append(track)
+
     data = {
-        "followed_artists": followed_artists
+        "saved_tracks": tracks
     }
     return render_template("dashboard.html", data=data)
 
