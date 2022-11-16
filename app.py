@@ -19,7 +19,9 @@ def home():
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-    authorize()
+
+    if not authorized():
+        return redirect('/')
 
     sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
     results = sp.current_user_saved_tracks()
@@ -94,13 +96,15 @@ def create_spotify_oauth():
             scope="user-library-read")
 
 
-def authorize():
+def authorized():
     session['token_info'], authorized = get_token()
+    print(session['token_info'], authorized)
     session.modified = True
 
     # Redirect is user not logged in
     if not authorized:
-        return redirect('/')
+        return False
+    return True
 
 
 if __name__ == '__main__':
