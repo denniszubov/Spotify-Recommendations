@@ -93,7 +93,7 @@ def create_spotify_oauth():
             client_id=env.CLIENT_ID,
             client_secret=env.CLIENT_SECRET,
             redirect_uri=url_for('callback', _external=True),
-            scope="user-library-read")
+            scope="user-library-read user-library-modify playlist-modify-private playlist-modify-public user-read-recently-played user-top-read")
 
 
 def authorized():
