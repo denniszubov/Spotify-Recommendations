@@ -2,7 +2,7 @@ from flask import Flask, request, url_for, render_template, redirect, request, s
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import secrets
-#import env
+import env
 import time
 
 
@@ -90,8 +90,8 @@ def get_token():
 
 def create_spotify_oauth():
     return SpotifyOAuth(
-            client_id=
-            client_secret=
+            client_id= env.CLIENT_ID,
+            client_secret= env.CLIENT_SECRET,
             redirect_uri=url_for('callback', _external=True),
             scope="user-library-read")
 
