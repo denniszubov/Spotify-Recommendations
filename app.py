@@ -24,7 +24,26 @@ def dashboard():
         return redirect('/')
 
     sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
+    genre_seeds = sp.recommendation_genre_seeds()["genres"]
+    # print("--------------------Genre Seeds--------------------")
+    # print(genre_seeds)
+    # print()
     results = sp.current_user_saved_tracks()
+    top_artists = sp.current_user_top_artists(time_range="short_term", limit=5)
+    top_artist_ids = [x["id"] for x in top_artists["items"]]
+    print("--------------------Top Artists--------------------")
+    print(top_artists)
+    print(top_artist_ids)
+    print()
+    recs_based_on_artists = sp.recommendations(limit=10, seed_artists=top_artist_ids)
+    rec_tracks = []
+    for idx, track_item in enumerate(recs_based_on_artists['tracks']):
+        track = {
+            "artist": track_item["artists"][0]["name"],
+            "track_name": track_item["name"]
+        }
+        rec_tracks.append(track)
+
     tracks = []
     for idx, item in enumerate(results['items']):
         track_item = item['track']
@@ -35,7 +54,8 @@ def dashboard():
         tracks.append(track)
 
     data = {
-        "saved_tracks": tracks
+        "saved_tracks": tracks,
+        "rec_tracks": rec_tracks
     }
     return render_template("dashboard.html", data=data)
 
