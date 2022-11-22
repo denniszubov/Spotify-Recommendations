@@ -73,20 +73,10 @@ def getRecs():
             "track_name": track_item["name"]
         }
         rec_tracks.append(track)
-
-    tracks = []
-    for idx, item in enumerate(results['items']):
-        track_item = item['track']
-        track = {
-            "artist": track_item["artists"][0]["name"],
-            "track_name": track_item["name"]
-        }
-        tracks.append(track)
         
     data = {
         "rec_tracks": rec_tracks
     }
-
     return render_template("recsBytrack.html", data=data) 
 
    
