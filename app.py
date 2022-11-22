@@ -51,10 +51,10 @@ def getRecs():
     results = sp.current_user_saved_tracks()
     top_artists = sp.current_user_top_artists(time_range="short_term", limit=5)
     top_artist_ids = [x["id"] for x in top_artists["items"]]
-    top_tracks = sp.current_user_top_tracks(time_range="short_term", limit=30)
-        
+    
+    top_tracks = sp.current_user_top_tracks(time_range="short_term", limit=5)
     top_tracks_ids = [x["id"] for x in top_tracks["items"]]
-    recs_based_on_tracks = sp.recommendations(limit=10, seed_tracks = top_tracks_ids)
+    recs_based_on_tracks = sp.recommendations(seed_tracks = top_tracks_ids, limit=10)
     
     rec_tracks = []
     for idx, track_item in enumerate(recs_based_on_tracks['tracks']):
@@ -74,11 +74,11 @@ def getRecs():
         tracks.append(track)
 
     data = {
-        "saved_tracks": tracks,
-        "rec_tracks": rec_tracks
+        #"saved_tracks": tracks,
+        "rec_tracks": recs_based_on_tracks
     }
 
-    return render_template("dashboard.html", data=data)
+    return recs_based_on_tracks
 
    
   
