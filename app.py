@@ -17,17 +17,14 @@ def home():
     return render_template("index.html")
 
 
-@app.route('/dashboard', methods=['GET'])
+@app.route('/home', methods=['GET'])
 def dashboard():
 
     if not authorized():
         return redirect('/')
 
     sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
-    genre_seeds = sp.recommendation_genre_seeds()["genres"]
-    # print("--------------------Genre Seeds--------------------")
-    # print(genre_seeds)
-    # print()
+
     results = sp.current_user_saved_tracks()
     top_artists = sp.current_user_top_artists(time_range="short_term", limit=5)
     top_artist_ids = [x["id"] for x in top_artists["items"]]
