@@ -11,7 +11,6 @@ app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 app.config['SESSION_COOKIE_NAME'] = "Spotify Session Cookie"
 
 
-
 @app.route('/', methods=['GET'])
 def home():
     return render_template("index.html")
@@ -39,7 +38,50 @@ def dashboard():
     }
     return render_template("dashboard.html", data=data)
 
+@app.route('/getRecs', methods=['GET'])
+def getRecs():
+    if not authorized():
+        return redirect('/')
 
+    sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
+    genre_seeds = sp.recommendation_genre_seeds()["genres"]
+    # print("--------------------Genre Seeds--------------------")
+    # print(genre_seeds)
+    # print()
+    results = sp.current_user_saved_tracks()
+    top_artists = sp.current_user_top_artists(time_range="short_term", limit=5)
+    top_artist_ids = [x["id"] for x in top_artists["items"]]
+    top_tracks = sp.current_user_top_tracks(time_range="short_term", limit=30)
+        
+    top_tracks_ids = [x["id"] for x in top_tracks["items"]]
+    recs_based_on_tracks = sp.recommendations(limit=10, seed_tracks = top_tracks_ids)
+    
+    rec_tracks = []
+    for idx, track_item in enumerate(recs_based_on_tracks['tracks']):
+        track = {
+            "artist": track_item["artists"][0]["name"],
+            "track_name": track_item["name"]
+        }
+        rec_tracks.append(track)
+
+    tracks = []
+    for idx, item in enumerate(results['items']):
+        track_item = item['track']
+        track = {
+            "artist": track_item["artists"][0]["name"],
+            "track_name": track_item["name"]
+        }
+        tracks.append(track)
+
+    data = {
+        "saved_tracks": tracks,
+        "rec_tracks": rec_tracks
+    }
+
+    return render_template("dashboard.html", data=data)
+
+   
+  
 @app.route('/login')
 def login():
     sp_oath = create_spotify_oauth()
