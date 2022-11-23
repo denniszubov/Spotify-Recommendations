@@ -40,6 +40,15 @@ def dashboard():
             "artist": track_item["artists"][0]["name"],
             "track_name": track_item["name"]
         }
+
+        table.put_item(
+                Item={
+                    "playlist-id": "1", #need to change
+                    "artist": track_item["artists"][0]["name"],
+                    "song-id": track_item["name"]
+                }
+            )
+        
         rec_tracks.append(track)
 
     tracks = []
@@ -49,31 +58,15 @@ def dashboard():
             "artist": track_item["artists"][0]["name"],
             "track_name": track_item["name"]
         }
-
-        table.put_item(
-                Item={
-                    "playlist-id": "1",
-                    "artist": track_item["artists"][0]["name"],
-                    "song-id": track_item["name"]
-                }
-            )
         
         tracks.append(track)
 
-        
-    
-    
     data = {
         "saved_tracks": tracks,
         "rec_tracks": rec_tracks
     }
+
     return render_template("dashboard.html", data=data)
-
-
-def get_items():
-    return dynamodb.scan(
-        TableName=env.DYNAMODB_TABLE
-    )
 
 @app.route('/getRecs', methods=['GET'])
 def getRecs():

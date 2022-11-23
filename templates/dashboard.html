@@ -13,7 +13,7 @@
     <h3>Saved Tracks</h3>
     <div class="card">
       <ul>
-        {% for track in data.saved_tracks %}
+        {% for track in data.rec_tracks %}
           <li>{{ track.track_name }} by {{ track.artist }}</li>
         {% endfor %}
       </ul>
