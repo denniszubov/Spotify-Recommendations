@@ -82,6 +82,22 @@ def callback():
     return redirect(url_for('dashboard'))
 
 
+@app.route('/saved-playlists', methods=['GET'])
+def saved():
+    if not authorized():
+        return redirect('/')
+
+    return render_template("saved-playlists.html")
+
+
+@app.route('/about', methods=['GET'])
+def about():
+    if not authorized():
+        return redirect('/')
+
+    return render_template("about.html")
+
+
 # Checks to see if token is valid and gets a new token if not
 def get_token():
     token_valid = False
