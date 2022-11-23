@@ -4,6 +4,7 @@ from spotipy.oauth2 import SpotifyOAuth
 import secrets
 import env
 import time
+import boto3
 
 
 app = Flask(__name__)
@@ -18,7 +19,8 @@ def home():
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-
+    dynamodb = boto3.resource('dynamodb', aws_access_key_id = env.AWS_ACCESS_KEY, aws_secret_access_key = env.AWS_SECRET_ACCESS_KEY, region_name = env.AWS_REGION)
+    table = dynamodb.Table(env.DYNAMODB_TABLE)
     if not authorized():
         return redirect('/')
 
@@ -47,13 +49,31 @@ def dashboard():
             "artist": track_item["artists"][0]["name"],
             "track_name": track_item["name"]
         }
+
+        table.put_item(
+                Item={
+                    "playlist-id": "1",
+                    "artist": track_item["artists"][0]["name"],
+                    "song-id": track_item["name"]
+                }
+            )
+        
         tracks.append(track)
 
+        
+    
+    
     data = {
         "saved_tracks": tracks,
         "rec_tracks": rec_tracks
     }
     return render_template("dashboard.html", data=data)
+
+
+def get_items():
+    return dynamodb.scan(
+        TableName=env.DYNAMODB_TABLE
+    )
 
 @app.route('/getRecs', methods=['GET'])
 def getRecs():
