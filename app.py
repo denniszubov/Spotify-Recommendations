@@ -12,6 +12,10 @@ app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 app.config['SESSION_COOKIE_NAME'] = "Spotify Session Cookie"
 
 
+dynamodb = boto3.resource('dynamodb', aws_access_key_id = env.AWS_ACCESS_KEY, aws_secret_access_key = env.AWS_SECRET_ACCESS_KEY, region_name = env.AWS_REGION)
+table = dynamodb.Table(env.DYNAMODB_TABLE)
+
+
 @app.route('/', methods=['GET'])
 def home():
     return render_template("index.html")
@@ -19,51 +23,51 @@ def home():
 
 @app.route('/home', methods=['GET'])
 def dashboard():
-    dynamodb = boto3.resource('dynamodb', aws_access_key_id = env.AWS_ACCESS_KEY, aws_secret_access_key = env.AWS_SECRET_ACCESS_KEY, region_name = env.AWS_REGION)
-    table = dynamodb.Table(env.DYNAMODB_TABLE)
     if not authorized():
         return redirect('/')
 
     sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
 
-    results = sp.current_user_saved_tracks()
+    # Get Recommendations based on Top Artists
     top_artists = sp.current_user_top_artists(time_range="short_term", limit=5)
     top_artist_ids = [x["id"] for x in top_artists["items"]]
-    print("--------------------Top Artists--------------------")
-    print(top_artists)
-    print(top_artist_ids)
-    print()
+
     recs_based_on_artists = sp.recommendations(limit=10, seed_artists=top_artist_ids)
-    rec_tracks = []
+    recs_artists = []
     for idx, track_item in enumerate(recs_based_on_artists['tracks']):
         track = {
             "artist": track_item["artists"][0]["name"],
             "track_name": track_item["name"]
         }
+        recs_artists.append(track)
 
-        table.put_item(
-                Item={
-                    "playlist-id": "1", #need to change
-                    "artist": track_item["artists"][0]["name"],
-                    "song-id": track_item["name"]
-                }
-            )
-        
-        rec_tracks.append(track)
+    # Get Recommendations based on Top Tracks
+    top_tracks = sp.current_user_top_tracks(time_range="short_term", limit=5)
+    top_tracks_ids = [x["id"] for x in top_tracks["items"]]
+    recs_based_on_tracks = sp.recommendations(seed_tracks=top_tracks_ids, limit=10)
 
-    tracks = []
-    for idx, item in enumerate(results['items']):
-        track_item = item['track']
+    recs_tracks = []
+    for idx, track_item in enumerate(recs_based_on_tracks['tracks']):
         track = {
             "artist": track_item["artists"][0]["name"],
             "track_name": track_item["name"]
         }
-        
-        tracks.append(track)
+        recs_tracks.append(track)
+
+    # General Recommendations
+    recs_based_on_both = sp.recommendations(seed_tracks=top_tracks_ids[:3], seed_artists=top_artist_ids[:2], limit=10)
+    recs_general = []
+    for idx, track_item in enumerate(recs_based_on_both['tracks']):
+        track = {
+            "artist": track_item["artists"][0]["name"],
+            "track_name": track_item["name"]
+        }
+        recs_general.append(track)
 
     data = {
-        "saved_tracks": tracks,
-        "rec_tracks": rec_tracks
+        "recs_artists": recs_artists,
+        "recs_tracks": recs_tracks,
+        "recs_general": recs_general
     }
 
     return render_template("dashboard.html", data=data)
@@ -74,21 +78,21 @@ def getRecs():
         return redirect('/')
 
     sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
-    genre_seeds = sp.recommendation_genre_seeds()["genres"]
+
     top_tracks = sp.current_user_top_tracks(time_range="short_term", limit=5)
     top_tracks_ids = [x["id"] for x in top_tracks["items"]]
-    recs_based_on_tracks = sp.recommendations(seed_tracks = top_tracks_ids, limit=10)
+    recs_based_on_tracks = sp.recommendations(seed_tracks=top_tracks_ids, limit=10)
     
-    rec_tracks = []
+    recs_tracks = []
     for idx, track_item in enumerate(recs_based_on_tracks['tracks']):
         track = {
             "artist": track_item["artists"][0]["name"],
             "track_name": track_item["name"]
         }
-        rec_tracks.append(track)
+        recs_tracks.append(track)
         
     data = {
-        "rec_tracks": rec_tracks
+        "recs_tracks": recs_tracks
     }
     return render_template("recsBytrack.html", data=data) 
 
