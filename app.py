@@ -17,7 +17,7 @@ def home():
     return render_template("index.html")
 
 
-@app.route('/dashboard', methods=['GET'])
+@app.route('/home', methods=['GET'])
 def dashboard():
     dynamodb = boto3.resource('dynamodb', aws_access_key_id = env.AWS_ACCESS_KEY, aws_secret_access_key = env.AWS_SECRET_ACCESS_KEY, region_name = env.AWS_REGION)
     table = dynamodb.Table(env.DYNAMODB_TABLE)
@@ -119,6 +119,22 @@ def callback():
     return redirect(url_for('dashboard'))
 
 
+@app.route('/saved-playlists', methods=['GET'])
+def saved():
+    if not authorized():
+        return redirect('/')
+
+    return render_template("saved-playlists.html")
+
+
+@app.route('/about', methods=['GET'])
+def about():
+    if not authorized():
+        return redirect('/')
+
+    return render_template("about.html")
+
+
 # Checks to see if token is valid and gets a new token if not
 def get_token():
     token_valid = False
@@ -144,10 +160,10 @@ def get_token():
 
 def create_spotify_oauth():
     return SpotifyOAuth(
-            client_id= env.CLIENT_ID,
-            client_secret= env.CLIENT_SECRET,
+            client_id=env.CLIENT_ID,
+            client_secret=env.CLIENT_SECRET,
             redirect_uri=url_for('callback', _external=True),
-            scope="user-library-read")
+            scope="user-library-read user-library-modify playlist-modify-private playlist-modify-public user-read-recently-played user-top-read")
 
 
 def authorized():

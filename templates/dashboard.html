@@ -9,16 +9,74 @@
     <title>Spotify Recommendations!</title>
   </head>
   <body>
-    <h1>Logged in!</h1>
-    <h3>Saved Tracks</h3>
-    <div class="card">
-      <ul>
-        {% for track in data.rec_tracks %}
-          <li>{{ track.track_name }} by {{ track.artist }}</li>
-        {% endfor %}
+    <div class="container-fluid bg-dark ">
+      <ul class="nav nav-tabs justify-content-end navbar-dark">
+        <li class="nav-item">
+          <a class="nav-link active" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="/saved-playlists">Saved</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="/about">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="/logout">Logout</a>
+        </li>
       </ul>
     </div>
-    <a class="btn btn-primary" href="/logout">Logout</a>
+    <div class="container pt-5">
+      <p class="h1 text-center">Spotify Recommendations</p>
+    </div>
+    <div class="container py-5">
+        <div class="row">
+          <div class="col">
+            <div class="card bg-success text-white">
+              <div class="card-header"><h3 class="text-center">General</h3></div>
+              <div class="card-body">
+                <ul>
+                  {% for track in data.rec_tracks %}
+                    <li>{{ track.track_name }} by {{ track.artist }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+              <div class="card-footer">
+                <a href="#" class="btn btn-light">Save</a>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card bg-success">
+              <div class="card-header text-white"><h3 class="text-center">Top Artists</h3></div>
+              <div class="card-body text-white">
+                <ul>
+                  {% for track in data.rec_tracks %}
+                    <li>{{ track.track_name }} by {{ track.artist }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+              <div class="card-footer">
+                <a href="#" class="btn btn-light">Save</a>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card bg-success text-white">
+              <div class="card-header"><h3 class="text-center">Top Genres</h3></div>
+              <div class="card-body">
+                <ul>
+                  {% for track in data.rec_tracks %}
+                    <li>{{ track.track_name }} by {{ track.artist }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+              <div class="card-footer">
+                <a href="#" class="btn btn-light">Save</a>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
 
     <!-- JavaScript for Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
