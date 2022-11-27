@@ -35,7 +35,7 @@
               <div class="card-header"><h3 class="text-center">General</h3></div>
               <div class="card-body">
                 <ul>
-                  {% for track in data.rec_tracks %}
+                  {% for track in data.recs_general %}
                     <li>{{ track.track_name }} by {{ track.artist }}</li>
                   {% endfor %}
                 </ul>
@@ -50,7 +50,7 @@
               <div class="card-header text-white"><h3 class="text-center">Top Artists</h3></div>
               <div class="card-body text-white">
                 <ul>
-                  {% for track in data.rec_tracks %}
+                  {% for track in data.recs_artists %}
                     <li>{{ track.track_name }} by {{ track.artist }}</li>
                   {% endfor %}
                 </ul>
@@ -65,7 +65,7 @@
               <div class="card-header"><h3 class="text-center">Top Genres</h3></div>
               <div class="card-body">
                 <ul>
-                  {% for track in data.rec_tracks %}
+                  {% for track in data.recs_tracks %}
                     <li>{{ track.track_name }} by {{ track.artist }}</li>
                   {% endfor %}
                 </ul>
