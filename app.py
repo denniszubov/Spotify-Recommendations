@@ -5,6 +5,8 @@ import secrets
 import env
 import time
 import boto3
+import datetime
+import spotipy.util as util
 
 
 app = Flask(__name__)
@@ -19,7 +21,6 @@ table = dynamodb.Table(env.DYNAMODB_TABLE)
 def home():
     return render_template("index.html")
 
-
 @app.route('/home', methods=['GET'])
 def dashboard():
    
@@ -27,6 +28,26 @@ def dashboard():
         return redirect('/')
 
     sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
+
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(client_id = env.CLIENT_ID, client_secret = env.CLIENT_SECRET, redirect_uri = url_for('callback', _external=True), scope=create_spotify_oauth().scope,
+                                               cache_handler=cache_handler,
+                                               show_dialog=True)
+    
+    if request.args.get("code"):
+        # Step 2. Being redirected from Spotify auth page
+        auth_manager.get_access_token(request.args.get("code"))
+        return redirect('/')
+
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        # Step 1. Display sign in link when no token
+        auth_url = auth_manager.get_authorize_url()
+        return f'<h2><a href="{auth_url}">Sign in</a></h2>'
+
+    # Step 3. Signed in, display data
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    user_id = spotify.me()["display_name"]
+
 
     results = sp.current_user_saved_tracks()
     top_artists = sp.current_user_top_artists(time_range="short_term", limit=5)
@@ -38,12 +59,13 @@ def dashboard():
             "artist": track_item["artists"][0]["name"],
             "track_name": track_item["name"]
         }
-
+        
         table.put_item(
                 Item={
-                    "playlist-id": "1", #need to change
+                    "playlist-id": datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
                     "artist": track_item["artists"][0]["name"],
-                    "song-id": track_item["name"]
+                    "song-id": track_item["name"],
+                    "user": user_id
                 }
             )
         
@@ -76,6 +98,8 @@ def dashboard():
         "recs_tracks": recs_tracks,
         "recs_general": recs_general
     }
+
+    
 
     return render_template("dashboard.html", data=data)
 
@@ -145,6 +169,30 @@ def about():
 
     return render_template("about.html")
 
+@app.route('/display_name', methods = ['GET'])
+def get_name():
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(client_id = env.CLIENT_ID, client_secret = env.CLIENT_SECRET, redirect_uri = url_for('callback', _external=True), scope=create_spotify_oauth().scope,
+                                               cache_handler=cache_handler,
+                                               show_dialog=True)
+    
+    if request.args.get("code"):
+        # Step 2. Being redirected from Spotify auth page
+        auth_manager.get_access_token(request.args.get("code"))
+        return redirect('/')
+
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        # Step 1. Display sign in link when no token
+        auth_url = auth_manager.get_authorize_url()
+        return f'<h2><a href="{auth_url}">Sign in</a></h2>'
+
+    # Step 3. Signed in, display data
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    return f'<h2>Hi {spotify.me()["display_name"]}, ' \
+           f'<small><a href="/sign_out">[sign out]<a/></small></h2>' \
+           f'<a href="/playlists">my playlists</a> | ' \
+           f'<a href="/currently_playing">currently playing</a> | ' \
+        f'<a href="/current_user">me</a>' \
 
 # Checks to see if token is valid and gets a new token if not
 def get_token():
