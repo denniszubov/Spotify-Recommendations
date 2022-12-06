@@ -27,23 +27,34 @@
     </div>
     <div class="container pt-5">
       <p class="h1 text-center">Saved Playlists</p>
+      <a href="/delete-saved-playlists" class="btn btn-dark">Delete All Saved Playlists</a>
     </div>
-    <div class="container py-5">
-      <div class="row">
-        <div class="card bg-dark text-white">
-          <div class="card-header"><p class="text-center">Saved Playlist {{ 1 }}</p></div>
-          <div class="card-body">
-            <ul>
-                <li>Song 1 by Artist A</li>
-                <li>Song 2 by Artist B</li>
-            </ul>
+    {% if data.playlists %}
+      <div class="container py-3"></div>
+        {% for playlist in data.playlists %}
+          <div class="container py-1"></div>
+            <div class="card bg-dark text-white">
+              <div class="card-header"><p class="text-center">Playlist ID: {{ playlist.id }}</p></div>
+              <div class="card-body">
+                <ul>
+                  {% for track in playlist.tracks %}
+                  <li>{{ track.name }} by {{ track.artist }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+              <div class="card-footer">
+                <a href="#" class="btn btn-light">Add Playlist to Spotify</a>
+              </div>
+            </div>
           </div>
-          <div class="card-footer">
-            <a href="#" class="btn btn-light">Save Playlist to Spotify</a>
-          </div>
-        </div>
+        {% endfor %}
       </div>
-    </div>
+    {% else %}
+      <div class="container py-5">
+        <p class="h3">No Saved Playlists!</p>
+      </div>
+    {% endif %}
+    
 
     <!-- JavaScript for Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
