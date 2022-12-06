@@ -25,16 +25,18 @@
         </li>
       </ul>
     </div>
-    <div class="container pt-5">
+    <div class="container pt-5 d-flex justify-content-center">
       <p class="h1 text-center">Saved Playlists</p>
-      <a href="/delete-saved-playlists" class="btn btn-dark">Delete All Saved Playlists</a>
+    </div>
+    <div class="container pt-3 d-flex justify-content-center">
+      <a href="/delete-saved-playlists" class="btn btn-dark text-center">Delete All Saved Playlists</a>
     </div>
     {% if data.playlists %}
       <div class="container py-3"></div>
         {% for playlist in data.playlists %}
-          <div class="container py-1"></div>
+          <div class="container py-1">
             <div class="card bg-dark text-white">
-              <div class="card-header"><p class="text-center">Playlist ID: {{ playlist.id }}</p></div>
+              <div class="card-header"><p class="text-center">Playlist ID: </p><p class="text-center" id="playlist-id-{{playlist.id}}">{{ playlist.id }}</p></div>
               <div class="card-body">
                 <ul>
                   {% for track in playlist.tracks %}
@@ -43,14 +45,14 @@
                 </ul>
               </div>
               <div class="card-footer">
-                <a href="#" class="btn btn-light">Add Playlist to Spotify</a>
+                <a href="/add-spotify-playlist/{{playlist.id}}" class="btn btn-light">Add Playlist to Spotify</a>
               </div>
             </div>
           </div>
         {% endfor %}
       </div>
     {% else %}
-      <div class="container py-5">
+      <div class="container py-5 d-flex justify-content-center">
         <p class="h3">No Saved Playlists!</p>
       </div>
     {% endif %}

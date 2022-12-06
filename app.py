@@ -308,6 +308,31 @@ def save_artists_playlist():
     return render_template("dashboard.html", data=session.get("data"))
 
 
+@app.route('/add-spotify-playlist/<string:playlist_id>', methods=["GET"])
+def add_playlist_to_spotify(playlist_id):
+    if not authorized():
+        return redirect('/')
+
+    user_id = session.get("user_id")
+    # Send to login if the user id is not in the session
+    if not user_id:
+        return redirect('/')
+
+    sp = spotipy.Spotify(auth=session.get('token_info').get('access_token'))
+
+    response = sp.user_playlist_create(user=user_id, name=f"Playlist: {playlist_id}")
+    sp_playlist_id = response["id"]
+
+    # Get the song uris to add
+    response = table.scan(FilterExpression=Attr('user').eq(user_id) & Attr('playlist-id').eq(playlist_id)).get("Items")
+
+    uris = response[0]["song-uris"].split(",")
+
+    sp.playlist_add_items(playlist_id=sp_playlist_id, items=uris)
+    
+    return redirect("/saved-playlists")
+
+
 # Delete all saved playlists
 @app.route('/delete-saved-playlists', methods=["GET"])
 def delete_saved_playlists():
